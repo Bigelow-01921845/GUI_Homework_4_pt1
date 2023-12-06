@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multiplication Table Generator</title>
+  <!-- StyleSheets -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+  <!-- jQuery plugins -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <!-- Input Boxes -->
+    <h1 class="text-center my-4">Please enter the table ranges</h1>
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <form id="table-form" action="/table-ranges" method="post">
+          <div class="form-group">
+            <label for="start-horizontal">Minimum Column Value</label>
+            <input id="start-horizontal" name="min-column-value" type="number" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="end-horizontal">Maximum Column Value</label>
+            <input id="end-horizontal" name="max-column-value" type="number" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="start-vertical">Minimum Row Value</label>
+            <input id="start-vertical" name="min-row-value" type="number" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="end-vertical">Maximum Row Value</label>
+            <input id="end-vertical" name="max-row-value" type="number" class="form-control">
+          </div>
+          <!-- Error Message -->
+          <p id="error-message" class="text-danger"></p>
+          <button type="submit" class="btn btn-primary btn-block">Regenerate Table</button>
+        </form>
+      </div>
+    </div>
+    <!-- Contains the generated table -->
+    <div class="row justify-content-center mt-4">
+      <div class="col-md-10">
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped">
+            <thead></thead>
+            <tbody id="generated-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+  // Validation Rules
+  $("#table-form").validate({
+    rules: {
+      "min-column-value": {
+        required: true, range: [-50, 50]},
+      "max-column-value": {required: true,range: [-50, 50]},
+      "min-row-value": {required: true,range: [-50, 50]},
+      "max-row-value": {required: true,range: [-50, 50]}},
+    messages: {"min-column-value": {required: "Please enter a value", range: "Value must be between -50 and 50"},
+      "max-column-value": {required: "Please enter a value",range: "Value must be between -50 and 50"},
+      "min-row-value": {required: "Please enter a value", range: "Value must be between -50 and 50"},
+      "max-row-value": {required: "Please enter a value",range: "Value must be between -50 and 50"}},
+    submitHandler: function () {
+      var minColumnValue = parseInt($("#start-horizontal").val());
+      var maxColumnValue = parseInt($("#end-horizontal").val());
+      var minRowValue = parseInt($("#start-vertical").val());
+      var maxRowValue = parseInt($("#end-vertical").val());
+      // If Form is Valid
+      if (minColumnValue >= maxColumnValue || minRowValue >= maxRowValue) {
+        // Error message
+        $("#error-message").text("Minimum values must be less than maximum values.");
+        $("#generated-table-body").empty(); // 
+      } else {
+        generateTable();
+      }
+    }
+  });
+});
+    function generateTable() {
+      //Initialize Values
+      const minColumnValue = parseInt(document.getElementById("start-horizontal").value);
+      const maxColumnValue = parseInt(document.getElementById("end-horizontal").value);
+      const minRowValue = parseInt(document.getElementById("start-vertical").value);
+      const maxRowValue = parseInt(document.getElementById("end-vertical").value);
+      // Generates Table
+      const table = generateMultiplicationTable(minColumnValue, minRowValue, maxColumnValue, maxRowValue);
+      const tbody = document.getElementById("generated-table-body");
+      tbody.innerHTML = "";
+
+      tbody.appendChild(table.tBody);
+    }
+
+    function generateMultiplicationTable(minColumn, minRow, maxColumn, maxRow) {
+      //Initialize Table
+      const table = document.createElement("table");
+      const tBody = document.createElement("tbody");
+      const headerRow = document.createElement("tr");
+      // Fill in top left corner of table
+      headerRow.innerHTML = "<th></th>";
+      //Creates header for row
+      for (let col = minColumn; col <= maxColumn; col++) {
+        const th = document.createElement("th");
+        th.textContent = col;
+        headerRow.appendChild(th);
+      }
+      tBody.appendChild(headerRow);
+      
+      // Fills in the Numbers
+      for (let row = minRow; row <= maxRow; row++) {
+        const tr = document.createElement("tr");
+        const th = document.createElement("th");
+        th.textContent = row;
+        tr.appendChild(th);
+        for (let col = minColumn; col <= maxColumn; col++) {
+          const td = document.createElement("td");
+          const result = row * col;
+          td.textContent = result;
+          tr.appendChild(td);
+        }
+        tBody.appendChild(tr);
+      }
+      table.appendChild(tBody);
+      // Returns added data
+      return { tBody };
+    }
+  </script>
+</body>
+
+</html>
